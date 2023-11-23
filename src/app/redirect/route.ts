@@ -5,5 +5,4 @@ export async function GET(req: NextRequest) {
   // parse params from url
   const params = req.nextUrl.search;
   return redirect("lestian://open" + params);
-  //   return Response.json({ hello: "world" });
 }
