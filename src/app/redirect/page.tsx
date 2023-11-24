@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 export default function Home() {
   useEffect(() => {
     const params = window.location.search;
-    redirect("lestian://open" + params);
+    // console.log(window.location);
+    // redirect("lestian://open" + params);
   }, []);
 
-  return <div></div>;
+  return <div className="bg-slate-900"></div>;
 }
