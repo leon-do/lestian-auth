@@ -1,21 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { redirect } from "next/navigation";
 import axios from "axios";
 
 interface User {
   id: string;
   username: string;
-  avatar: string;
-  discriminator: string;
-  public_flags: number;
-  premium_type: number;
-  flags: number;
-  banner: any;
-  accent_color: any;
-  global_name: string;
-  avatar_decoration_data: any;
-  banner_color: any;
-  mfa_enabled: boolean;
-  locale: string;
 }
 
 interface AccessToken {
@@ -32,25 +21,53 @@ interface Params {
 }
 
 export async function GET(req: NextApiRequest, res: NextApiResponse) {
+  const { code } = getParams(req.url as string);
   try {
-    const { code, address } = getParams(req.url as string);
-    const accessToken: AccessToken = await fetchAccessToken(code);
-    const user: User = await fetchUser(accessToken.access_token);
-    // save discord.id, user.username, code, address to database
-
-    return Response.json({ success: true });
+    const accessToken = await fetchAccessToken(code);
+    const user = await fetchUser(accessToken.access_token);
+    const upserted = await upsertUser(user.id, code);
+    return Response.json({ success: upserted });
   } catch (error: any) {
-    return new Response(error.message || error.toString(), { status: 401 });
+    console.error(error);
+    return Response.json({ success: false });
+  } finally {
+    return redirect(`lestian://open?code=${code}`);
   }
 }
 
+async function upsertUser(id: string, code: string) {
+  const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${process.env.AIRTABLE_TABLE_ID}`;
+  await axios.patch(
+    url,
+    {
+      typecast: true,
+      performUpsert: {
+        fieldsToMergeOn: ["discord_id"],
+      },
+      records: [
+        {
+          fields: {
+            discord_id: id,
+            discord_code: code,
+          },
+        },
+      ],
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
+      },
+    }
+  );
+}
+
 async function fetchUser(accessToken: string): Promise<User> {
-  const { data } = await axios.get("https://discord.com/api/users/@me", {
+  const response = await axios.get("https://discord.com/api/users/@me", {
     headers: {
       authorization: `Bearer ${accessToken}`,
     },
   });
-  return data;
+  return response.data;
 }
 
 function getParams(url: string): Params {
@@ -70,7 +87,7 @@ async function fetchAccessToken(code: string): Promise<AccessToken> {
       client_secret: process.env.DISCORD_SECRET_ID as string,
       grant_type: "authorization_code",
       code,
-      redirect_uri: "http://localhost:3000/redirect", // must match discord portal
+      redirect_uri: "http://localhost:3000/auth", // must match discord portal
     },
     {
       headers: {

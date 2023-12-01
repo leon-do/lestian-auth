@@ -1,13 +1,8 @@
-"use client";
-import { useEffect } from "react";
-import { redirect } from "next/navigation";
-
+import Image from "next/image";
 export default function Home() {
-  useEffect(() => {
-    const params = window.location.search;
-    console.log(window.location);
-    redirect("lestian://open" + params);
-  }, []);
-
-  return <main></main>;
+  return (
+    <div className="h-screen flex items-center justify-center">
+      <Image src="/logo.svg" alt="Lestian" width="100" height="100" />
+    </div>
+  );
 }
