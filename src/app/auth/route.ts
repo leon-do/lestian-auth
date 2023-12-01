@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 import axios from "axios";
 
@@ -20,7 +20,7 @@ interface Params {
   address: string;
 }
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest, res: NextResponse) {
   const { code } = getParams(req.url as string);
   try {
     const accessToken = await fetchAccessToken(code);

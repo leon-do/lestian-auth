@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 export interface User {
@@ -14,7 +14,7 @@ export interface User {
   };
 }
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest, res: NextResponse) {
   const code = getParams(req.url as string);
   const users = await getUsers();
   const user = users.filter((u: User) => u.fields.discord_code === code && u.fields.discord_joined === 1);
