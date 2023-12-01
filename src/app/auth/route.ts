@@ -87,7 +87,8 @@ async function fetchAccessToken(code: string): Promise<AccessToken> {
       client_secret: process.env.DISCORD_SECRET_ID as string,
       grant_type: "authorization_code",
       code,
-      redirect_uri: "http://localhost:3000/auth", // must match discord portal
+      // must match discord portal
+      redirect_uri: "https://auth.lestian.com/auth", // "http://localhost:3000/auth", 
     },
     {
       headers: {
