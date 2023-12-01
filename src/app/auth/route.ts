@@ -17,7 +17,6 @@ interface AccessToken {
 
 interface Params {
   code: string;
-  address: string;
 }
 
 export async function GET(req: NextRequest, res: NextResponse) {
@@ -75,7 +74,6 @@ function getParams(url: string): Params {
   const params = new URLSearchParams(new URL(url).search);
   return {
     code: params.get("code") as string,
-    address: params.get("address") as string,
   };
 }
 
@@ -88,7 +86,7 @@ async function fetchAccessToken(code: string): Promise<AccessToken> {
       grant_type: "authorization_code",
       code,
       // must match discord portal
-      redirect_uri: "https://auth.lestian.com/auth", // "http://localhost:3000/auth", 
+      redirect_uri: "https://auth.lestian.com/auth", // "http://localhost:3000/auth",
     },
     {
       headers: {
